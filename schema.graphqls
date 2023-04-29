@@ -1,0 +1,50 @@
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  password_hash: String!
+  salt: String!
+  created_at: DateTime
+  folders: [Folder!]!
+  notes: [Note!]!
+}
+
+type Folder {
+  id: ID!
+  name: String!
+  ancestors: [Folder!]!
+  descendants: [Folder!]!
+  user: User!
+  notes: [Note!]!
+}
+
+type Note {
+  id: ID!
+  name: String!
+  content: String
+  folder: Folder!
+  user: User!
+}
+
+type Query {
+  users: [User!]!
+  user(id: ID!): User
+  folders: [Folder!]!
+  folder(id: ID!): Folder
+  notes: [Note!]!
+  note(id: ID!): Note
+}
+
+type Mutation {
+  createUser(name: String!, email: String!, password: String!): User
+  createFolder(name: String!, parentFolderId: ID): Folder
+  createNote(name: String!, content: String!, folderId: ID!): Note
+  updateUser(id: ID!, name: String!): User
+  updateFolder(id: ID!, name: String!): Folder
+  updateNote(id: ID!, name: String!, content: String!): Note
+  deleteUser(id: ID!): Boolean
+  deleteFolder(id: ID!): Boolean
+  deleteNote(id: ID!): Boolean
+}
+
+scalar DateTime
