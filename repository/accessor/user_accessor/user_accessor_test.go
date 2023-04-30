@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/takuya-okada-01/heart-note/repository"
-	"github.com/takuya-okada-01/heart-note/repository/entity"
+	"github.com/takuya-okada-01/heart-note/repository/database"
+	"github.com/takuya-okada-01/heart-note/repository/database/entity"
 )
 
 func TestUserAccessor(t *testing.T) {
-	db := repository.Connect()
+	db := database.Connect()
 	insertUser := entity.User{
 		Name:         "test",
 		Email:        "hoge@hoge.com",
@@ -46,7 +46,7 @@ func TestUserAccessor(t *testing.T) {
 }
 
 func TestAuthentication(t *testing.T) {
-	db := repository.Connect()
+	db := database.Connect()
 	insertUser := entity.User{
 		Name:         "test",
 		Email:        "hoge@hoge.com",

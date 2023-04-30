@@ -4,7 +4,8 @@ import (
 	"context"
 
 	"github.com/takuya-okada-01/heart-note/crypto"
-	"github.com/takuya-okada-01/heart-note/repository/entity"
+	"github.com/takuya-okada-01/heart-note/repository/database/entity"
+
 	"github.com/uptrace/bun"
 )
 
