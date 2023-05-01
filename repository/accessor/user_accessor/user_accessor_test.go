@@ -1,7 +1,7 @@
 package accessor
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -9,70 +9,81 @@ import (
 	"github.com/takuya-okada-01/heart-note/repository/database/entity"
 )
 
-func TestUserAccessor(t *testing.T) {
+func TestUserInsertAndSelect(t *testing.T) {
 	db := database.Connect()
+	userAccessor := NewUserAccessor(db)
 	insertUser := entity.User{
 		Name:         "test",
 		Email:        "hoge@hoge.com",
-		PasswordHash: "test",
-	}
-
-	userAccessor := NewUserAccessor(db)
-	err := db.ResetModel(context.Background(), (*entity.User)(nil))
-	if err != nil {
-		t.Fatal(err)
+		PasswordHash: "password",
 	}
 
 	id, err := userAccessor.InsertUser(&insertUser)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println(id)
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	want := insertUser.ID
-
-	user, err := userAccessor.SelectLastUser()
+	want := id
+	user, err := userAccessor.SelectUser(id)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if user.ID != want {
-		t.Errorf("InsertUser == %d, want %d", user.ID, want)
+		t.Errorf("InsertUser == %s, want %s", user.ID, want)
 	}
-	fmt.Printf("user: %+v\n", user)
+	userAccessor.DeleteUser(id)
+	result, err := json.MarshalIndent(user, "", "  ")
+	fmt.Print(string(result))
 }
 
-func TestAuthentication(t *testing.T) {
+func TestUserUpdate(t *testing.T) {
 	db := database.Connect()
+	userAccessor := NewUserAccessor(db)
 	insertUser := entity.User{
 		Name:         "test",
-		Email:        "hoge@hoge.com",
-		PasswordHash: "test",
+		Email:        "hogehoge@hoge.com",
+		PasswordHash: "password",
 	}
 
-	err := db.ResetModel(context.Background(), (*entity.User)(nil))
+	id, err := userAccessor.InsertUser(&insertUser)
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	insertUser.ID = id
+	insertUser.Name = "test_updated"
+	userAccessor.UpdateUser(&insertUser)
+
+	want := "test_updated"
+	user, err := userAccessor.SelectUser(id)
+	if user.Name != want {
+		t.Errorf("InsertUser == %s, want %s", user.Name, want)
+	}
+	userAccessor.DeleteUser(id)
+}
+
+func TestUserDelete(t *testing.T) {
+	db := database.Connect()
 	userAccessor := NewUserAccessor(db)
+	insertUser := entity.User{
+		Name:         "test",
+		Email:        "hogsfeh@hoge.com",
+		PasswordHash: "password",
+	}
 
-	want, err := userAccessor.SignUpWithEmailAndPassword(insertUser.Email, insertUser.PasswordHash)
+	id, err := userAccessor.InsertUser(&insertUser)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	id, err := userAccessor.LoginWithEmailAndPassword(
-		insertUser.Email, insertUser.PasswordHash,
-	)
+	err = userAccessor.DeleteUser(id)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if id != want {
-		t.Errorf("InsertUser.ID == %d, want %d", id, want)
+	user, err := userAccessor.SelectUser(id)
+	if err == nil {
+		t.Errorf("InsertUser == %s, want %s", user, "nil")
 	}
 }

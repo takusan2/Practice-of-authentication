@@ -1,38 +1,36 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 
-	"github.com/go-sql-driver/mysql"
+	sql "github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/mysqldialect"
+	"github.com/takuya-okada-01/heart-note/repository/database/entity"
 )
 
-func Connect() *bun.DB {
+func Connect() *gorm.DB {
 	err := godotenv.Load("/Users/okadatakuya/my_folder/dev/my_app/（仮）/backend/.env")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	cfg := mysql.Config{
-		User:   os.Getenv("DBUSER"),
-		Passwd: os.Getenv("DBPASS"),
-		Net:    os.Getenv("NET"),
-		Addr:   os.Getenv("ADDR"),
-		DBName: os.Getenv("DBNAME"),
+	cfg := sql.Config{
+		User:      os.Getenv("DBUSER"),
+		Passwd:    os.Getenv("DBPASS"),
+		Net:       os.Getenv("NET"),
+		Addr:      os.Getenv("ADDR"),
+		DBName:    os.Getenv("DBNAME"),
+		ParseTime: true,
 	}
-	sqldb, err := sql.Open("mysql", cfg.FormatDSN())
+
+	db, err := gorm.Open("mysql", cfg.FormatDSN())
+	db.LogMode(true)
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
-
-	if err := sqldb.Ping(); err != nil {
-		panic(err)
-	}
-
-	db := bun.NewDB(sqldb, mysqldialect.New())
+	db.AutoMigrate(&entity.User{})
+	fmt.Print("Connected to database!!\n")
 	return db
 }

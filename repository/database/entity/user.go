@@ -3,15 +3,21 @@ package entity
 import (
 	"time"
 
-	"github.com/uptrace/bun"
+	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
 )
 
 type User struct {
-	bun.BaseModel `bun:"table:users,alias:u"`
-	ID            int64     `bun:"id,pk,autoincrement"`
-	Name          string    `bun:"name,notnull"`
-	Email         string    `bun:"email,notnull,unique"`
-	PasswordHash  string    `bun:"password_hash,notnull"`
-	CreatedAt     time.Time `bun:"created_at,notnull,default:current_timestamp"`
-	UpdatedAt     time.Time `bun:"updated_at,notnull,default:current_timestamp"`
+	ID           string    `gorm:"type:varchar(36);primary_key;"`
+	Name         string    `gorm:"type:varchar(255);not null;"`
+	Email        string    `gorm:"type:varchar(255);not null;unique;"`
+	PasswordHash string    `gorm:"type:varchar(255);not null;"`
+	Salt         string    `gorm:"type:varchar(255);not null;"`
+	CreatedAt    time.Time `gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP;"`
+	UpdatedAt    time.Time `gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP;"`
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	u.ID = uuid.New().String()
+	return
 }
