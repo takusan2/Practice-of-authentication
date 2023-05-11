@@ -3,8 +3,8 @@ package services
 import (
 	"testing"
 
-	"github.com/takuya-okada-01/heart-note/repository/database"
-	repository "github.com/takuya-okada-01/heart-note/repository/user_repository"
+	"github.com/takuya-okada-01/heart-note/infrastructure/database"
+	repository "github.com/takuya-okada-01/heart-note/infrastructure/repository/user_repository"
 )
 
 func TestSignUpWithEmailandPassword(t *testing.T) {

@@ -1,19 +1,24 @@
 package repository
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 	"github.com/takuya-okada-01/heart-note/crypto"
-	"github.com/takuya-okada-01/heart-note/repository/database/entity"
-	"github.com/takuya-okada-01/heart-note/services/repository_interface"
+	"github.com/takuya-okada-01/heart-note/infrastructure/database/entity"
 )
+
+type UserRepository interface {
+	InsertUser(user *entity.User) (string, error)
+	SelectUser(id string) (entity.User, error)
+	SelectUserByEmail(email string) (entity.User, error)
+	UpdateUser(user *entity.User) error
+	DeleteUser(id string) error
+}
 
 type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) repository_interface.UserRepository {
+func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
@@ -30,9 +35,6 @@ func (u *userRepository) InsertUser(user *entity.User) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	fmt.Print("id: ", user.ID, "\n")
-
 	return user.ID, err
 }
 

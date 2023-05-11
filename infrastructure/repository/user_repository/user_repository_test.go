@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/takuya-okada-01/heart-note/repository/database"
-	"github.com/takuya-okada-01/heart-note/repository/database/entity"
+	"github.com/takuya-okada-01/heart-note/infrastructure/database"
+	"github.com/takuya-okada-01/heart-note/infrastructure/database/entity"
 )
 
 func TestUserInsertAndSelect(t *testing.T) {

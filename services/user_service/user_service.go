@@ -2,15 +2,24 @@ package services
 
 import (
 	"github.com/takuya-okada-01/heart-note/crypto"
-	"github.com/takuya-okada-01/heart-note/repository/database/entity"
-	"github.com/takuya-okada-01/heart-note/services/repository_interface"
+	"github.com/takuya-okada-01/heart-note/infrastructure/database/entity"
+	repository "github.com/takuya-okada-01/heart-note/infrastructure/repository/user_repository"
 )
 
-type userService struct {
-	userRepository repository_interface.UserRepository
+type UserService interface {
+	InsertUser(user *entity.User) (string, error)
+	SelectUser(id string) (entity.User, error)
+	UpdateUser(user *entity.User) error
+	DeleteUser(id string) error
+	SignUpWithEmailAndPassword(email, password string) (string, error)
+	LoginWithEmailAndPassword(email, password string) (string, error)
 }
 
-func NewUserService(userRepository repository_interface.UserRepository) *userService {
+type userService struct {
+	userRepository repository.UserRepository
+}
+
+func NewUserService(userRepository repository.UserRepository) UserService {
 	return &userService{userRepository: userRepository}
 }
 
