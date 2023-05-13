@@ -1,46 +1,46 @@
-package services
+package usecase
 
 import (
 	"github.com/takuya-okada-01/heart-note/crypto"
-	"github.com/takuya-okada-01/heart-note/infrastructure/database/entity"
+	"github.com/takuya-okada-01/heart-note/domain"
 	repository "github.com/takuya-okada-01/heart-note/infrastructure/repository/user_repository"
 )
 
-type UserService interface {
-	InsertUser(user *entity.User) (string, error)
-	SelectUser(id string) (entity.User, error)
-	UpdateUser(user *entity.User) error
+type UserUseCase interface {
+	InsertUser(user *domain.User) (string, error)
+	SelectUser(id string) (domain.User, error)
+	UpdateUser(user *domain.User) error
 	DeleteUser(id string) error
 	SignUpWithEmailAndPassword(email, password string) (string, error)
 	LoginWithEmailAndPassword(email, password string) (string, error)
 }
 
-type userService struct {
+type userUseCase struct {
 	userRepository repository.UserRepository
 }
 
-func NewUserService(userRepository repository.UserRepository) UserService {
-	return &userService{userRepository: userRepository}
+func NewUserUseCase(userRepository repository.UserRepository) UserUseCase {
+	return &userUseCase{userRepository: userRepository}
 }
 
-func (u *userService) InsertUser(user *entity.User) (string, error) {
+func (u *userUseCase) InsertUser(user *domain.User) (string, error) {
 	return u.userRepository.InsertUser(user)
 }
 
-func (u *userService) SelectUser(id string) (entity.User, error) {
+func (u *userUseCase) SelectUser(id string) (domain.User, error) {
 	return u.userRepository.SelectUser(id)
 }
 
-func (u *userService) UpdateUser(user *entity.User) error {
+func (u *userUseCase) UpdateUser(user *domain.User) error {
 	return u.userRepository.UpdateUser(user)
 }
 
-func (u *userService) DeleteUser(id string) error {
+func (u *userUseCase) DeleteUser(id string) error {
 	return u.userRepository.DeleteUser(id)
 }
 
-func (u *userService) LoginWithEmailAndPassword(email, password string) (string, error) {
-	var user entity.User
+func (u *userUseCase) LoginWithEmailAndPassword(email, password string) (string, error) {
+	var user domain.User
 
 	user, err := u.userRepository.SelectUserByEmail(email)
 	if err != nil {
@@ -55,8 +55,8 @@ func (u *userService) LoginWithEmailAndPassword(email, password string) (string,
 	return user.ID, err
 }
 
-func (u *userService) SignUpWithEmailAndPassword(email, password string) (string, error) {
-	var user entity.User
+func (u *userUseCase) SignUpWithEmailAndPassword(email, password string) (string, error) {
+	var user domain.User
 	user.Email = email
 	user.PasswordHash = password
 	user.Salt = crypto.SecureRandomBase64()

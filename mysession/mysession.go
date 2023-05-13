@@ -1,4 +1,4 @@
-package session
+package mysession
 
 import (
 	"log"
@@ -29,4 +29,11 @@ func SessionCheck() gin.HandlerFunc {
 		}
 		log.Println("ログインチェック終わり")
 	}
+}
+
+func SessionCheckForLogin(ctx *gin.Context) string {
+	session := sessions.Default(ctx)
+	var sessionInfo SessionInfo
+	sessionInfo.UserId = session.Get("UserId")
+	return sessionInfo.UserId.(string)
 }

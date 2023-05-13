@@ -3,14 +3,14 @@ package repository
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/takuya-okada-01/heart-note/crypto"
-	"github.com/takuya-okada-01/heart-note/infrastructure/database/entity"
+	"github.com/takuya-okada-01/heart-note/domain"
 )
 
 type UserRepository interface {
-	InsertUser(user *entity.User) (string, error)
-	SelectUser(id string) (entity.User, error)
-	SelectUserByEmail(email string) (entity.User, error)
-	UpdateUser(user *entity.User) error
+	InsertUser(user *domain.User) (string, error)
+	SelectUser(id string) (domain.User, error)
+	SelectUserByEmail(email string) (domain.User, error)
+	UpdateUser(user *domain.User) error
 	DeleteUser(id string) error
 }
 
@@ -22,7 +22,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-func (u *userRepository) InsertUser(user *entity.User) (string, error) {
+func (u *userRepository) InsertUser(user *domain.User) (string, error) {
 	var err error
 	user.Salt = crypto.SecureRandomBase64()
 	user.PasswordHash, err = crypto.PasswordEncrypt(user.PasswordHash + user.Salt)
@@ -38,24 +38,24 @@ func (u *userRepository) InsertUser(user *entity.User) (string, error) {
 	return user.ID, err
 }
 
-func (u *userRepository) SelectUser(id string) (entity.User, error) {
-	var user entity.User
+func (u *userRepository) SelectUser(id string) (domain.User, error) {
+	var user domain.User
 	err := u.db.Select("*").Where("id = ?", id).First(&user).Error
 	return user, err
 }
 
-func (u *userRepository) UpdateUser(user *entity.User) error {
+func (u *userRepository) UpdateUser(user *domain.User) error {
 	err := u.db.Model(&user).Where("id = ?", user.ID).Update(user).Error
 	return err
 }
 
 func (u *userRepository) DeleteUser(id string) error {
-	err := u.db.Where("id = ?", id).Delete(&entity.User{}).Error
+	err := u.db.Where("id = ?", id).Delete(&domain.User{}).Error
 	return err
 }
 
-func (u *userRepository) SelectUserByEmail(email string) (entity.User, error) {
-	var user entity.User
+func (u *userRepository) SelectUserByEmail(email string) (domain.User, error) {
+	var user domain.User
 	err := u.db.Select("*").Where("email = ?", email).First(&user).Error
 	return user, err
 }

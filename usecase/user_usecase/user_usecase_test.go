@@ -1,4 +1,4 @@
-package services
+package usecase
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 func TestSignUpWithEmailandPassword(t *testing.T) {
 	db := database.Connect()
 	userRepository := repository.NewUserRepository(db)
-	userService := NewUserService(userRepository)
+	userService := NewUserUseCase(userRepository)
 
 	email := "hoge@hoge.com"
 	password := "password"
@@ -35,7 +35,7 @@ func TestSignUpWithEmailandPassword(t *testing.T) {
 func TestLoginWithEmailAndPassword(t *testing.T) {
 	db := database.Connect()
 	userRepository := repository.NewUserRepository(db)
-	userService := NewUserService(userRepository)
+	userService := NewUserUseCase(userRepository)
 
 	email := "hoge@hoge.com"
 	password := "password"

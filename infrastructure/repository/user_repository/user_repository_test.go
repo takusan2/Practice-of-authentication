@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/takuya-okada-01/heart-note/domain"
 	"github.com/takuya-okada-01/heart-note/infrastructure/database"
-	"github.com/takuya-okada-01/heart-note/infrastructure/database/entity"
 )
 
 func TestUserInsertAndSelect(t *testing.T) {
 	db := database.Connect()
 	userRepository := NewUserRepository(db)
-	insertUser := entity.User{
+	insertUser := domain.User{
 		Name:         "test",
 		Email:        "hoge@hoge.com",
 		PasswordHash: "password",
@@ -40,7 +40,7 @@ func TestUserInsertAndSelect(t *testing.T) {
 func TestUserUpdate(t *testing.T) {
 	db := database.Connect()
 	userRepository := NewUserRepository(db)
-	insertUser := entity.User{
+	insertUser := domain.User{
 		Name:         "test",
 		Email:        "hogehoge@hoge.com",
 		PasswordHash: "password",
@@ -66,7 +66,7 @@ func TestUserUpdate(t *testing.T) {
 func TestUserDelete(t *testing.T) {
 	db := database.Connect()
 	userRepository := NewUserRepository(db)
-	insertUser := entity.User{
+	insertUser := domain.User{
 		Name:         "test",
 		Email:        "hogsfeh@hoge.com",
 		PasswordHash: "password",
@@ -91,7 +91,7 @@ func TestUserDelete(t *testing.T) {
 func TestSelectByEmail(t *testing.T) {
 	db := database.Connect()
 	userRepository := NewUserRepository(db)
-	insertUser := entity.User{
+	insertUser := domain.User{
 		Name:         "test",
 		Email:        "hogehoge@hoge.com",
 		PasswordHash: "password",

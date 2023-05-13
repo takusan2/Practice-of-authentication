@@ -7,7 +7,7 @@ import (
 	sql "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
-	"github.com/takuya-okada-01/heart-note/infrastructure/database/entity"
+	"github.com/takuya-okada-01/heart-note/domain"
 )
 
 func Connect() *gorm.DB {
@@ -30,7 +30,7 @@ func Connect() *gorm.DB {
 	if err != nil {
 		panic(err.Error())
 	}
-	db.AutoMigrate(&entity.User{}, &entity.Note{})
+	db.AutoMigrate(&domain.User{}, &domain.Note{})
 	fmt.Print("Connected to database!!\n")
 	return db
 }

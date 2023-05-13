@@ -4,8 +4,9 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/takuya-okada-01/heart-note/controller/dto"
-	"github.com/takuya-okada-01/heart-note/infrastructure/database/entity"
-	services "github.com/takuya-okada-01/heart-note/services/user_service"
+	"github.com/takuya-okada-01/heart-note/domain"
+	"github.com/takuya-okada-01/heart-note/mysession"
+	usecase "github.com/takuya-okada-01/heart-note/usecase/user_usecase"
 )
 
 type UserController interface {
@@ -17,10 +18,10 @@ type UserController interface {
 }
 
 type userController struct {
-	userService services.UserService
+	userService usecase.UserUseCase
 }
 
-func NewUserController(userService services.UserService) UserController {
+func NewUserController(userService usecase.UserUseCase) UserController {
 	return &userController{userService: userService}
 }
 
@@ -34,11 +35,14 @@ func (uc *userController) SignUp(ctx *gin.Context) {
 		return
 	}
 
+	session := sessions.Default(ctx)
+	session.Set("UserId", id)
+	session.Save()
+
 	ctx.JSON(200, gin.H{"id": id})
 }
 
 func (uc *userController) Login(ctx *gin.Context) {
-
 	var user dto.UserRequest
 	ctx.BindJSON(&user)
 
@@ -56,10 +60,11 @@ func (uc *userController) Login(ctx *gin.Context) {
 }
 
 func (uc *userController) SelectUser(ctx *gin.Context) {
-	id := ctx.Param("id")
+	session := sessions.Default(ctx)
+	var sessionInfo mysession.SessionInfo
+	sessionInfo.UserId = session.Get("UserId")
 
-	user, err := uc.userService.SelectUser(id)
-
+	user, err := uc.userService.SelectUser(sessionInfo.UserId.(string))
 	responoseUser := dto.UserResonse{
 		ID:    user.ID,
 		Name:  user.Name,
@@ -75,13 +80,16 @@ func (uc *userController) SelectUser(ctx *gin.Context) {
 }
 
 func (uc *userController) UpdateUser(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	var sessionInfo mysession.SessionInfo
+	sessionInfo.UserId = session.Get("UserId")
+
 	var user dto.UserRequest
-	id := ctx.Param("id")
 	ctx.BindJSON(&user)
 
 	err := uc.userService.UpdateUser(
-		&entity.User{
-			ID:           id,
+		&domain.User{
+			ID:           sessionInfo.UserId.(string),
 			Name:         user.Name,
 			Email:        user.Email,
 			PasswordHash: user.PasswordHash,
@@ -96,9 +104,11 @@ func (uc *userController) UpdateUser(ctx *gin.Context) {
 }
 
 func (uc *userController) DeleteUser(ctx *gin.Context) {
-	id := ctx.Param("id")
+	session := sessions.Default(ctx)
+	var sessionInfo mysession.SessionInfo
+	sessionInfo.UserId = session.Get("UserId")
 
-	err := uc.userService.DeleteUser(id)
+	err := uc.userService.DeleteUser(sessionInfo.UserId.(string))
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": err.Error()})
 		return
