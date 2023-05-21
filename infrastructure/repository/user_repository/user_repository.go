@@ -4,21 +4,14 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/takuya-okada-01/heart-note/crypto"
 	"github.com/takuya-okada-01/heart-note/domain"
+	"github.com/takuya-okada-01/heart-note/domain/repository_interface"
 )
-
-type UserRepository interface {
-	InsertUser(user *domain.User) (string, error)
-	SelectUser(id string) (domain.User, error)
-	SelectUserByEmail(email string) (domain.User, error)
-	UpdateUser(user *domain.User) error
-	DeleteUser(id string) error
-}
 
 type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
+func NewUserRepository(db *gorm.DB) repository_interface.UserRepository {
 	return &userRepository{db: db}
 }
 

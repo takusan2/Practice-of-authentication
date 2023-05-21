@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/takuya-okada-01/heart-note/controller/dto"
 	"github.com/takuya-okada-01/heart-note/domain"
-	"github.com/takuya-okada-01/heart-note/mysession"
 	usecase "github.com/takuya-okada-01/heart-note/usecase/note_usecase"
 )
 
@@ -29,9 +28,7 @@ func NewNoteController(noteService usecase.NoteUseCase) NoteController {
 
 func (nc *noteController) InsertNote(ctx *gin.Context) {
 	session := sessions.Default(ctx)
-	var sessionInfo mysession.SessionInfo
-	sessionInfo.UserId = session.Get("UserId")
-	userID := sessionInfo.UserId.(string)
+	userID := session.Get("UserId").(string)
 
 	var note dto.NoteRequest
 	ctx.BindJSON(&note)
@@ -52,9 +49,7 @@ func (nc *noteController) InsertNote(ctx *gin.Context) {
 
 func (nc *noteController) SelectNoteByID(ctx *gin.Context) {
 	session := sessions.Default(ctx)
-	var sessionInfo mysession.SessionInfo
-	sessionInfo.UserId = session.Get("UserId")
-	userID := sessionInfo.UserId.(string)
+	userID := session.Get("UserId").(string)
 
 	id := ctx.Param("id")
 
@@ -69,9 +64,7 @@ func (nc *noteController) SelectNoteByID(ctx *gin.Context) {
 
 func (nc *noteController) SelectNoteByFolderID(ctx *gin.Context) {
 	session := sessions.Default(ctx)
-	var sessionInfo mysession.SessionInfo
-	sessionInfo.UserId = session.Get("UserId")
-	userID := sessionInfo.UserId.(string)
+	userID := session.Get("UserId").(string)
 	folderID := ctx.Query("folderId")
 	fmt.Print("folderID", folderID)
 
@@ -89,12 +82,10 @@ func (nc *noteController) UpdateNote(ctx *gin.Context) {
 	id := ctx.Param("id")
 	ctx.BindJSON(&note)
 
-	userID, err := ctx.Cookie("UserId")
-	if err != nil {
-		ctx.JSON(500, gin.H{"message": err.Error()})
-		return
-	}
-	err = nc.noteService.UpdateNote(&domain.Note{
+	session := sessions.Default(ctx)
+	userID := session.Get("UserId").(string)
+
+	err := nc.noteService.UpdateNote(&domain.Note{
 		ID:       id,
 		Name:     note.Name,
 		Content:  note.Content,
@@ -111,9 +102,7 @@ func (nc *noteController) UpdateNote(ctx *gin.Context) {
 
 func (nc *noteController) DeleteNoteByID(ctx *gin.Context) {
 	session := sessions.Default(ctx)
-	var sessionInfo mysession.SessionInfo
-	sessionInfo.UserId = session.Get("UserId")
-	userID := sessionInfo.UserId.(string)
+	userID := session.Get("UserId").(string)
 	id := ctx.Param("id")
 
 	err := nc.noteService.DeleteNoteByID(userID, id)

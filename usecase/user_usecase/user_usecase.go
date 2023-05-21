@@ -3,7 +3,7 @@ package usecase
 import (
 	"github.com/takuya-okada-01/heart-note/crypto"
 	"github.com/takuya-okada-01/heart-note/domain"
-	repository "github.com/takuya-okada-01/heart-note/infrastructure/repository/user_repository"
+	"github.com/takuya-okada-01/heart-note/domain/repository_interface"
 )
 
 type UserUseCase interface {
@@ -16,10 +16,10 @@ type UserUseCase interface {
 }
 
 type userUseCase struct {
-	userRepository repository.UserRepository
+	userRepository repository_interface.UserRepository
 }
 
-func NewUserUseCase(userRepository repository.UserRepository) UserUseCase {
+func NewUserUseCase(userRepository repository_interface.UserRepository) UserUseCase {
 	return &userUseCase{userRepository: userRepository}
 }
 

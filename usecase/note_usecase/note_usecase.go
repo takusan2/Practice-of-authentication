@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"github.com/takuya-okada-01/heart-note/domain"
-	repository "github.com/takuya-okada-01/heart-note/infrastructure/repository/note_repository"
+	"github.com/takuya-okada-01/heart-note/domain/repository_interface"
 )
 
 type NoteUseCase interface {
@@ -14,10 +14,10 @@ type NoteUseCase interface {
 }
 
 type noteUseCase struct {
-	noteRepository repository.NoteRepository
+	noteRepository repository_interface.NoteRepository
 }
 
-func NewNoteUseCase(noteRepository repository.NoteRepository) NoteUseCase {
+func NewNoteUseCase(noteRepository repository_interface.NoteRepository) NoteUseCase {
 	return &noteUseCase{noteRepository: noteRepository}
 }
 
