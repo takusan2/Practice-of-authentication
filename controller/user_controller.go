@@ -1,11 +1,9 @@
 package controller
 
 import (
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/takuya-okada-01/heart-note/controller/dto"
 	"github.com/takuya-okada-01/heart-note/domain"
-	"github.com/takuya-okada-01/heart-note/session_manager"
 	usecase "github.com/takuya-okada-01/heart-note/usecase/user_usecase"
 )
 
@@ -18,50 +16,50 @@ type UserController interface {
 }
 
 type userController struct {
-	userService    usecase.UserUseCase
-	sessionManager session_manager.SessionManager
+	userService usecase.UserUseCase
 }
 
-func NewUserController(userService usecase.UserUseCase, sessionManager session_manager.SessionManager) UserController {
-	return &userController{userService: userService, sessionManager: sessionManager}
+func NewUserController(userService usecase.UserUseCase) UserController {
+	return &userController{userService: userService}
 }
 
 func (uc *userController) SignUp(ctx *gin.Context) {
 	var user dto.UserRequest
 	ctx.BindJSON(&user)
 
-	id, err := uc.userService.SignUpWithEmailAndPassword(user.Email, user.PasswordHash)
+	tokenString, err := uc.userService.SignUpWithEmailAndPassword(user.Email, user.PasswordHash)
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
-	if err := uc.sessionManager.SetSession(ctx); err != nil {
-		ctx.JSON(500, gin.H{"message": err.Error()})
-		return
-	}
-	ctx.JSON(200, gin.H{"id": id})
+
+	// cookieにトークンをセット
+	ctx.SetCookie("SessionID", tokenString, 3600*24*30, "/", "localhost", false, true)
+	ctx.JSON(200, gin.H{"id": tokenString})
 }
 
 func (uc *userController) Login(ctx *gin.Context) {
 	var user dto.UserRequest
 	ctx.BindJSON(&user)
 
-	id, err := uc.userService.LoginWithEmailAndPassword(user.Email, user.PasswordHash)
+	tokenString, err := uc.userService.LoginWithEmailAndPassword(user.Email, user.PasswordHash)
+
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
 
-	if err := uc.sessionManager.SetSession(ctx); err != nil {
-		ctx.JSON(500, gin.H{"message": err.Error()})
-		return
-	}
-	ctx.JSON(200, gin.H{"id": id})
+	// cookieにトークンをセット
+	ctx.SetCookie("SessionID", tokenString, 3600*24*30, "/", "localhost", false, true)
+	ctx.JSON(200, gin.H{"token": tokenString})
 }
 
 func (uc *userController) SelectUser(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	userID := session.Get("UserId").(string)
+	userID, ok := ctx.Keys["user_id"].(string)
+	if !ok {
+		ctx.JSON(500, gin.H{"message": "user not found"})
+		return
+	}
 
 	user, err := uc.userService.SelectUser(userID)
 	responoseUser := dto.UserResonse{
@@ -75,12 +73,15 @@ func (uc *userController) SelectUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{"user": responoseUser})
+	ctx.JSON(200, responoseUser)
 }
 
 func (uc *userController) UpdateUser(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	userID := session.Get("UserId").(string)
+	userID, ok := ctx.Keys["user_id"].(string)
+	if !ok {
+		ctx.JSON(500, gin.H{"message": "user not found"})
+		return
+	}
 
 	var user dto.UserRequest
 	ctx.BindJSON(&user)
@@ -102,8 +103,11 @@ func (uc *userController) UpdateUser(ctx *gin.Context) {
 }
 
 func (uc *userController) DeleteUser(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	userID := session.Get("UserId").(string)
+	userID, ok := ctx.Keys["user_id"].(string)
+	if !ok {
+		ctx.JSON(500, gin.H{"message": "user not found"})
+		return
+	}
 
 	err := uc.userService.DeleteUser(userID)
 	if err != nil {

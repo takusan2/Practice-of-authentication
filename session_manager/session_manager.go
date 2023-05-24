@@ -13,6 +13,20 @@ import (
 type SessionManager interface {
 	SessionCheck() gin.HandlerFunc
 	SetSession(c *gin.Context) error
+	GetSession(c *gin.Context) (string, error)
+}
+type Provider interface {
+	SessionInit(sid string) (Session, error)
+	SessionRead(sid string) (Session, error)
+	SessionDestroy(sid string) error
+	SessionGC(maxLifeTime int64)
+}
+
+type Session interface {
+	Set(key, value interface{}) error
+	Get(key interface{}) interface{}
+	Delete(key interface{}) error
+	SessionID() string
 }
 
 type sessionManager struct {
@@ -57,4 +71,10 @@ func (s *sessionManager) SetSession(c *gin.Context) error {
 	// セッションIDをredisにセット
 	s.redisClient.SetSession(c, sessionInfo.SessionID.(string), sessionInfo.UserID, 60*60*24*30)
 	return session.Save()
+}
+
+func (s *sessionManager) GetSession(c *gin.Context) (string, error) {
+	session := sessions.Default(c)
+	sessionID := session.Get("SessionID").(string)
+	return sessionID, nil
 }

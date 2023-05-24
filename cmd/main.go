@@ -1,39 +1,38 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/takuya-okada-01/heart-note/controller"
 	"github.com/takuya-okada-01/heart-note/infrastructure/database"
-	"github.com/takuya-okada-01/heart-note/infrastructure/redis_client"
 	note_repository "github.com/takuya-okada-01/heart-note/infrastructure/repository/note_repository"
 	user_repository "github.com/takuya-okada-01/heart-note/infrastructure/repository/user_repository"
-	"github.com/takuya-okada-01/heart-note/session_manager"
+	"github.com/takuya-okada-01/heart-note/middleware"
 	note_usecase "github.com/takuya-okada-01/heart-note/usecase/note_usecase"
 	user_usecase "github.com/takuya-okada-01/heart-note/usecase/user_usecase"
 )
 
 func main() {
-	//redis接続
-	redis := redis_client.Connect()
-	redisClient := redis_client.NewRedisClient(redis)
-	sessionManager := session_manager.NewSessionManager(redisClient)
+	godotenv.Load("/Users/okadatakuya/my_folder/dev/my_app/（仮）/backend/.env")
 
 	// db接続
 	db := database.Connect()
 
 	ur := user_repository.NewUserRepository(db)
 	uu := user_usecase.NewUserUseCase(ur)
-	uc := controller.NewUserController(uu, sessionManager)
+	uc := controller.NewUserController(uu)
 
 	nr := note_repository.NewNoteRepository(db)
 	nu := note_usecase.NewNoteUseCase(nr)
 	nc := controller.NewNoteController(nu)
 
 	router := gin.Default()
-	store := cookie.NewStore([]byte("secret"))
-	router.Use(sessions.Sessions("mysession", store))
+	store := cookie.NewStore([]byte(os.Getenv("SECRET_KEY")))
+	router.Use(sessions.Sessions("SessionID", store))
 
 	v1 := router.Group("/")
 	{
@@ -42,14 +41,16 @@ func main() {
 	}
 
 	v2 := router.Group("/user")
-	v2.Use(sessionManager.SessionCheck())
+	v2.Use(middleware.VerifyToken())
+	v2.Use(middleware.SessionCheck())
 	{
 		v2.GET("/", uc.SelectUser)
 		v2.PUT("/", uc.UpdateUser)
 		v2.DELETE("/:id", uc.DeleteUser)
 	}
 	v3 := router.Group("/note")
-	v3.Use(sessionManager.SessionCheck())
+	v3.Use(middleware.VerifyToken())
+	v3.Use(middleware.SessionCheck())
 	{
 		v3.POST("/", nc.InsertNote)
 		v3.GET("/:id", nc.SelectNoteByID)
@@ -58,7 +59,7 @@ func main() {
 	}
 
 	v4 := router.Group("/folders")
-	v4.Use(sessionManager.SessionCheck())
+	// v4.Use(sessionManager.SessionCheck())
 	{
 		v4.GET("/", nc.SelectNoteByFolderID)
 	}

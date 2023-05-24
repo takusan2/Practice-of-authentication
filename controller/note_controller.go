@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/takuya-okada-01/heart-note/controller/dto"
 	"github.com/takuya-okada-01/heart-note/domain"
@@ -27,8 +26,11 @@ func NewNoteController(noteService usecase.NoteUseCase) NoteController {
 }
 
 func (nc *noteController) InsertNote(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	userID := session.Get("UserId").(string)
+	userID, ok := ctx.Keys["user_id"].(string)
+	if !ok {
+		ctx.JSON(500, gin.H{"message": "user not found"})
+		return
+	}
 
 	var note dto.NoteRequest
 	ctx.BindJSON(&note)
@@ -48,8 +50,11 @@ func (nc *noteController) InsertNote(ctx *gin.Context) {
 }
 
 func (nc *noteController) SelectNoteByID(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	userID := session.Get("UserId").(string)
+	userID, ok := ctx.Keys["user_id"].(string)
+	if !ok {
+		ctx.JSON(500, gin.H{"message": "user not found"})
+		return
+	}
 
 	id := ctx.Param("id")
 
@@ -63,8 +68,11 @@ func (nc *noteController) SelectNoteByID(ctx *gin.Context) {
 }
 
 func (nc *noteController) SelectNoteByFolderID(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	userID := session.Get("UserId").(string)
+	userID, ok := ctx.Keys["user_id"].(string)
+	if !ok {
+		ctx.JSON(500, gin.H{"message": "user not found"})
+		return
+	}
 	folderID := ctx.Query("folderId")
 	fmt.Print("folderID", folderID)
 
@@ -78,12 +86,15 @@ func (nc *noteController) SelectNoteByFolderID(ctx *gin.Context) {
 }
 
 func (nc *noteController) UpdateNote(ctx *gin.Context) {
+	userID, ok := ctx.Keys["user_id"].(string)
+	if !ok {
+		ctx.JSON(500, gin.H{"message": "user not found"})
+		return
+	}
+
 	var note dto.NoteRequest
 	id := ctx.Param("id")
 	ctx.BindJSON(&note)
-
-	session := sessions.Default(ctx)
-	userID := session.Get("UserId").(string)
 
 	err := nc.noteService.UpdateNote(&domain.Note{
 		ID:       id,
@@ -101,8 +112,11 @@ func (nc *noteController) UpdateNote(ctx *gin.Context) {
 }
 
 func (nc *noteController) DeleteNoteByID(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	userID := session.Get("UserId").(string)
+	userID, ok := ctx.Keys["user_id"].(string)
+	if !ok {
+		ctx.JSON(500, gin.H{"message": "user not found"})
+		return
+	}
 	id := ctx.Param("id")
 
 	err := nc.noteService.DeleteNoteByID(userID, id)
