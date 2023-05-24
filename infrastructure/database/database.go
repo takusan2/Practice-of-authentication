@@ -12,12 +12,13 @@ import (
 func Connect() *gorm.DB {
 
 	cfg := sql.Config{
-		User:      os.Getenv("DBUSER"),
-		Passwd:    os.Getenv("DBPASS"),
-		Net:       os.Getenv("NET"),
-		Addr:      os.Getenv("ADDR"),
-		DBName:    os.Getenv("DBNAME"),
-		ParseTime: true,
+		User:                 os.Getenv("DBUSER"),
+		Passwd:               os.Getenv("DBPASS"),
+		Net:                  os.Getenv("NET"),
+		Addr:                 os.Getenv("ADDR"),
+		DBName:               os.Getenv("DBNAME"),
+		ParseTime:            true,
+		AllowNativePasswords: true,
 	}
 
 	db, err := gorm.Open("mysql", cfg.FormatDSN())
