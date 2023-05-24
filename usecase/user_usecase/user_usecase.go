@@ -1,9 +1,10 @@
 package usecase
 
 import (
-	"github.com/takuya-okada-01/heart-note/crypto"
 	"github.com/takuya-okada-01/heart-note/domain"
 	"github.com/takuya-okada-01/heart-note/domain/repository_interface"
+	"github.com/takuya-okada-01/heart-note/utils"
+	"github.com/takuya-okada-01/heart-note/utils/crypto"
 )
 
 type UserUseCase interface {
@@ -52,7 +53,13 @@ func (u *userUseCase) LoginWithEmailAndPassword(email, password string) (string,
 		return "", err
 	}
 
-	return user.ID, err
+	tokenString, err := utils.GenerateToken(user.ID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, err
 }
 
 func (u *userUseCase) SignUpWithEmailAndPassword(email, password string) (string, error) {
@@ -67,5 +74,7 @@ func (u *userUseCase) SignUpWithEmailAndPassword(email, password string) (string
 		return "", err
 	}
 
-	return id, err
+	tokenString, err := utils.GenerateToken(id)
+
+	return tokenString, err
 }

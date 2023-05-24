@@ -2,9 +2,10 @@ package repository
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/takuya-okada-01/heart-note/crypto"
+
 	"github.com/takuya-okada-01/heart-note/domain"
 	"github.com/takuya-okada-01/heart-note/domain/repository_interface"
+	"github.com/takuya-okada-01/heart-note/utils/crypto"
 )
 
 type userRepository struct {

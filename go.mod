@@ -44,6 +44,7 @@ require (
 
 require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dgryski/trifles v0.0.0-20230415055908-5afb1989f858
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.0
