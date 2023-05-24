@@ -6,7 +6,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/takuya-okada-01/heart-note/controller"
 	"github.com/takuya-okada-01/heart-note/infrastructure/database"
 	note_repository "github.com/takuya-okada-01/heart-note/infrastructure/repository/note_repository"
@@ -17,7 +16,7 @@ import (
 )
 
 func main() {
-	godotenv.Load("/Users/okadatakuya/my_folder/dev/my_app/（仮）/backend/.env")
+	// godotenv.Load("/Users/okadatakuya/my_folder/dev/my_app/（仮）/backend/.env")
 
 	// db接続
 	db := database.Connect()
