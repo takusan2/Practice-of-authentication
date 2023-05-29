@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/takuya-okada-01/heart-note/controller/dto"
 	"github.com/takuya-okada-01/heart-note/domain"
@@ -50,7 +52,9 @@ func (uc *userController) Login(ctx *gin.Context) {
 	}
 
 	// cookieにトークンをセット
-	ctx.SetCookie("SessionID", tokenString, 3600*24*30, "/", "localhost", false, true)
+	var host string
+	host = os.Getenv("ADDR")
+	ctx.SetCookie("SessionID", tokenString, 3600*24*30, "/", host, false, true)
 	ctx.JSON(200, gin.H{"token": tokenString})
 }
 
