@@ -20,7 +20,8 @@ func Connect() *gorm.DB {
 	// 	DBName: os.Getenv("DBNAME"),
 	// }
 	// dsn = cfg.FormatDSN()
-	dsn = os.Getenv("DATABASE_URL")
+	dsn = os.Getenv("DATABASE_URL") + "?parseTime=true"
+	fmt.Print(dsn)
 
 	fmt.Print("Try connecting to database...\n")
 	db, err := gorm.Open("mysql", dsn)
