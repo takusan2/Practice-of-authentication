@@ -67,9 +67,11 @@ func (uc *userController) SelectUser(ctx *gin.Context) {
 
 	user, err := uc.userService.SelectUser(userID)
 	responoseUser := dto.UserResonse{
-		ID:    user.ID,
-		Name:  user.Name,
-		Email: user.Email,
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		UpdatedAt: user.UpdatedAt,
+		CreatedAt: user.CreatedAt,
 	}
 
 	if err != nil {

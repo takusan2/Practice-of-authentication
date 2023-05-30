@@ -22,8 +22,7 @@ func main() {
 	var mode *string = flag.String("m", "production", "debug")
 	flag.Parse()
 	if *mode == "debug" {
-		fmt.Print("debug mode\n")
-		godotenv.Load("/Users/okadatakuya/my_folder/dev/my_app/（仮）/backend/.env")
+		godotenv.Load("/Users/okadatakuya/my_folder/dev/my_app/heart-note/backend/.env")
 	}
 	// db接続
 	db := database.Connect()
