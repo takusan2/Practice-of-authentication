@@ -7,6 +7,12 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+type Claims struct {
+	// Iss string `json:"iss"`
+	Sub string `json:"sub"`
+	Exp int64  `json:"exp"`
+}
+
 func GenerateToken(userID string) (string, error) {
 	key := os.Getenv("SECRET_KEY")
 	// JWTの署名に使用するシークレットキー
@@ -18,8 +24,8 @@ func GenerateToken(userID string) (string, error) {
 
 	// トークンに埋め込むクレーム（情報）
 	claims := jwt.MapClaims{
-		"user_id": userID,
-		"exp":     expirationTime.Unix(),
+		"sub": userID,
+		"exp": expirationTime.Unix(),
 	}
 
 	// トークンを作成

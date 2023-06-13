@@ -3,14 +3,13 @@ package repository
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/takuya-okada-01/heart-note/domain"
-	"github.com/takuya-okada-01/heart-note/domain/repository_interface"
 )
 
 type noteRepository struct {
 	db *gorm.DB
 }
 
-func NewNoteRepository(db *gorm.DB) repository_interface.NoteRepository {
+func NewNoteRepository(db *gorm.DB) domain.INoteRepository {
 	return &noteRepository{db: db}
 }
 

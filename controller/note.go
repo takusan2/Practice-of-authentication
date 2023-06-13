@@ -6,23 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/takuya-okada-01/heart-note/controller/dto"
 	"github.com/takuya-okada-01/heart-note/domain"
-	usecase "github.com/takuya-okada-01/heart-note/usecase/note_usecase"
 )
 
-type NoteController interface {
-	InsertNote(ctx *gin.Context)
-	SelectNoteByID(ctx *gin.Context)
-	SelectNoteByFolderID(ctx *gin.Context)
-	UpdateNote(ctx *gin.Context)
-	DeleteNoteByID(ctx *gin.Context)
-}
-
 type noteController struct {
-	noteService usecase.NoteUseCase
+	router *gin.RouterGroup
+	nu     domain.INoteUseCase
 }
 
-func NewNoteController(noteService usecase.NoteUseCase) NoteController {
-	return &noteController{noteService: noteService}
+func NewNoteController(router *gin.RouterGroup, noteUseCase domain.INoteUseCase) {
+	nc := &noteController{router: router, nu: noteUseCase}
+	router.POST("/note", nc.InsertNote)
+	router.GET("/note/:id", nc.SelectNoteByID)
+	router.GET("/note/folder/:folder_id", nc.SelectNoteByFolderID)
+	router.PUT("/note/:id", nc.UpdateNote)
+	router.DELETE("/note/:id", nc.DeleteNoteByID)
 }
 
 func (nc *noteController) InsertNote(ctx *gin.Context) {
@@ -35,7 +32,7 @@ func (nc *noteController) InsertNote(ctx *gin.Context) {
 	var note dto.NoteRequest
 	ctx.BindJSON(&note)
 
-	id, err := nc.noteService.InsertNote(&domain.Note{
+	id, err := nc.nu.InsertNote(&domain.Note{
 		Name:     note.Name,
 		Content:  note.Content,
 		FolderID: note.FolderID,
@@ -58,7 +55,7 @@ func (nc *noteController) SelectNoteByID(ctx *gin.Context) {
 
 	id := ctx.Param("id")
 
-	note, err := nc.noteService.SelectNoteByID(userID, id)
+	note, err := nc.nu.SelectNoteByID(userID, id)
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": err.Error()})
 		return
@@ -76,7 +73,7 @@ func (nc *noteController) SelectNoteByFolderID(ctx *gin.Context) {
 	folderID := ctx.Query("folderId")
 	fmt.Print("folderID", folderID)
 
-	notes, err := nc.noteService.SelectNoteByFolderID(userID, folderID)
+	notes, err := nc.nu.SelectNoteByFolderID(userID, folderID)
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": err.Error()})
 		return
@@ -96,7 +93,7 @@ func (nc *noteController) UpdateNote(ctx *gin.Context) {
 	id := ctx.Param("id")
 	ctx.BindJSON(&note)
 
-	err := nc.noteService.UpdateNote(&domain.Note{
+	err := nc.nu.UpdateNote(&domain.Note{
 		ID:       id,
 		Name:     note.Name,
 		Content:  note.Content,
@@ -119,7 +116,7 @@ func (nc *noteController) DeleteNoteByID(ctx *gin.Context) {
 	}
 	id := ctx.Param("id")
 
-	err := nc.noteService.DeleteNoteByID(userID, id)
+	err := nc.nu.DeleteNoteByID(userID, id)
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": err.Error()})
 		return

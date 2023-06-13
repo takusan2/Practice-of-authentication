@@ -54,6 +54,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/redis/go-redis/v9 v9.0.3
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect

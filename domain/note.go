@@ -21,3 +21,19 @@ func (n *Note) BeforeCreate(tx *gorm.DB) (err error) {
 	n.ID = uuid.New().String()
 	return
 }
+
+type INoteRepository interface {
+	InsertNote(note *Note) (string, error)
+	SelectNoteByID(userID string, id string) (Note, error)
+	SelectNoteByFolderID(userID string, folderID string) ([]Note, error)
+	UpdateNote(note *Note) error
+	DeleteNoteByID(userID string, id string) error
+}
+
+type INoteUseCase interface {
+	InsertNote(note *Note) (string, error)
+	SelectNoteByID(userID string, id string) (Note, error)
+	SelectNoteByFolderID(userID string, folderID string) ([]Note, error)
+	UpdateNote(note *Note) error
+	DeleteNoteByID(userID string, id string) error
+}

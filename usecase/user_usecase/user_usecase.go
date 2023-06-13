@@ -1,80 +1,27 @@
 package usecase
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/takuya-okada-01/heart-note/domain"
-	"github.com/takuya-okada-01/heart-note/domain/repository_interface"
-	"github.com/takuya-okada-01/heart-note/utils"
-	"github.com/takuya-okada-01/heart-note/utils/crypto"
 )
 
-type UserUseCase interface {
-	InsertUser(user *domain.User) (string, error)
-	SelectUser(id string) (domain.User, error)
-	UpdateUser(user *domain.User) error
-	DeleteUser(id string) error
-	SignUpWithEmailAndPassword(email, password string) (string, error)
-	LoginWithEmailAndPassword(email, password string) (string, error)
-}
-
 type userUseCase struct {
-	userRepository repository_interface.UserRepository
+	userRepository domain.IUserRepository
 }
 
-func NewUserUseCase(userRepository repository_interface.UserRepository) UserUseCase {
+func NewUserUseCase(userRepository domain.IUserRepository) domain.IUserUseCase {
 	return &userUseCase{userRepository: userRepository}
 }
 
-func (u *userUseCase) InsertUser(user *domain.User) (string, error) {
-	return u.userRepository.InsertUser(user)
+func (u *userUseCase) UpdateUser(ctx *gin.Context, id string, name string) error {
+	user, err := u.userRepository.SelectUser(id)
+	if err != nil {
+		return err
+	}
+	user.Name = name
+	return u.userRepository.UpdateUser(&user)
 }
 
-func (u *userUseCase) SelectUser(id string) (domain.User, error) {
-	return u.userRepository.SelectUser(id)
-}
-
-func (u *userUseCase) UpdateUser(user *domain.User) error {
-	return u.userRepository.UpdateUser(user)
-}
-
-func (u *userUseCase) DeleteUser(id string) error {
+func (u *userUseCase) DeleteUser(ctx *gin.Context, id string) error {
 	return u.userRepository.DeleteUser(id)
-}
-
-func (u *userUseCase) LoginWithEmailAndPassword(email, password string) (string, error) {
-	var user domain.User
-
-	user, err := u.userRepository.SelectUserByEmail(email)
-	if err != nil {
-		return "", err
-	}
-
-	err = crypto.CompareHashAndPassword(user.PasswordHash, password+user.Salt)
-	if err != nil {
-		return "", err
-	}
-
-	tokenString, err := utils.GenerateToken(user.ID)
-
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, err
-}
-
-func (u *userUseCase) SignUpWithEmailAndPassword(email, password string) (string, error) {
-	var user domain.User
-	user.Email = email
-	user.PasswordHash = password
-	user.Salt = crypto.SecureRandomBase64()
-	crypto.PasswordEncrypt(user.PasswordHash + user.Salt)
-
-	id, err := u.userRepository.InsertUser(&user)
-	if err != nil {
-		return "", err
-	}
-
-	tokenString, err := utils.GenerateToken(id)
-
-	return tokenString, err
 }

@@ -11,7 +11,7 @@ import (
 func VerifyToken() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// クッキーからトークンを取得
-		cookie, err := ctx.Cookie("SessionID")
+		cookie, err := ctx.Cookie("AccessToken")
 		if err != nil {
 			http.Error(ctx.Writer, "Unauthorized", http.StatusUnauthorized)
 			ctx.Abort()

@@ -11,7 +11,7 @@ import (
 func SessionCheck() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// クッキーからトークンを取得
-		token, err := ctx.Cookie("SessionID")
+		token, err := ctx.Cookie("AccessToken")
 
 		if err != nil {
 			ctx.JSON(401, gin.H{"message": "Unauthorized"})
@@ -33,14 +33,14 @@ func SessionCheck() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
-		if claims["user_id"] == nil {
+		if claims["sub"] == nil {
 			ctx.JSON(401, gin.H{"message": "Unauthorized"})
 			ctx.Abort()
 			return
 		}
 
 		// contextにユーザーIDをセット
-		ctx.Keys["user_id"] = claims["user_id"]
+		ctx.Keys["user_id"] = claims["sub"]
 		ctx.Next()
 	}
 }
